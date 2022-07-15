@@ -1,0 +1,24 @@
+{
+  "name": "connection-test",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "prepare": "npm run cert",
+    "dev": "GRPC_VERBOSITY=DEBUG GRPC_TRACE=channel,subchannel,call_stream nodemon --trace-deprecation .",
+    "start": "node .",
+    "zeebe": "./run-zeebe.sh",
+    "cert": "./generate-cert.sh",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "zbctl": "zbctl --certPath ./cert.pem status"
+  },
+  "keywords": [],
+  "author": "Maciej Barelkowski <maciej.barelkowski@camunda.com>",
+  "license": "MIT",
+  "dependencies": {
+    "zeebe-node": "^8.0.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.19"
+  }
+}
