@@ -1,10 +1,10 @@
 const ZB = require('zeebe-node');
-const fs = require('fs');
 
-const cert = fs.readFileSync('./cert.pem')
-const key = fs.readFileSync('./key.pem')
+const getSystemCertificates = require('./get-system-certificates');
 
 void (async () => {
+	const systemCertificates = await getSystemCertificates();
+
 	const zbc = new ZB.ZBClient('localhost:26500', {
 		onReady,
 		onConnectionError() {
@@ -14,9 +14,9 @@ void (async () => {
 		useTLS: true,
 		retry: false,
 		customSSL: {
-			rootCerts: cert,
-			certChain: cert,
-			privateKey: key
+			// For untrusted cert, use
+			// rootCerts: require('fs').readFileSync('./cert.pem'),
+			rootCerts: Buffer.from(systemCertificates.join('\n'))
 		}
 	});
 
