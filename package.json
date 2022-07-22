@@ -8,6 +8,7 @@
     "dev": "GRPC_VERBOSITY=DEBUG GRPC_TRACE=channel,subchannel,call_stream nodemon --trace-deprecation .",
     "start": "node .",
     "zeebe": "./run-zeebe.sh",
+    "zeebe:insecure": "./insecure.sh",
     "cert": "./generate-cert.sh",
     "test": "echo \"Error: no test specified\" && exit 1",
     "zbctl": "zbctl --certPath ./cert.pem status"
