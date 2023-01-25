@@ -9,7 +9,7 @@ services:
     environment:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
-      - ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=true
+      - ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=${ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED:-true}
       - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/cert.pem
       - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/key.pem
     volumes:
@@ -35,7 +35,7 @@ services:
         condition: service_healthy
     environment:
       - ZEEBE_ADDRESS=test.test.localhost:26500
-      - ZEEBE_INSECURE_CONNECTION=false
+      - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
       - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
     command: sh -c "ping test.test.localhost -c 1 && npm install -g zbctl && zbctl status"
     volumes:
@@ -51,7 +51,7 @@ services:
         condition: service_healthy
     environment:
       - ZEEBE_ADDRESS=test.test.localhost:26500
-      - ZEEBE_INSECURE_CONNECTION=false
+      - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
       - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
       - LOG_LEVEL=debug
       - GRPC_VERBOSITY=DEBUG
