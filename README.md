@@ -19,14 +19,16 @@ npm install
 
 ### Usage
 
-Prepare (generate certificates):
+#### Prepare (generate certificates)
 
 ```sh
 # generate certificates into ./cert
 npm run generate-certs
 ```
 
-Test in docker:
+#### Test in Docker
+
+If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
 ```
 # test with security enabled
@@ -36,7 +38,9 @@ docker-compose up
 docker-compose --env-file .env.insecure up
 ```
 
-Test locally (against running zeebe):
+### Test locally (against running zeebe)
+
+If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
 ```
 # test with security enabled
