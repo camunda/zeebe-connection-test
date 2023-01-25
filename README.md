@@ -30,7 +30,7 @@ npm run generate-certs
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
-```
+```sh
 # test with security enabled
 docker-compose up
 
@@ -42,7 +42,7 @@ docker-compose --env-file .env.insecure up
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
-```
+```sh
 # test with security enabled
 # won't work with existing certificate unless
 # you alias localhost to test.test.localhost in /etc/hosts
