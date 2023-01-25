@@ -4,14 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "prepare": "npm run cert",
-    "dev": "GRPC_VERBOSITY=DEBUG GRPC_TRACE=channel,subchannel,call_stream nodemon --trace-deprecation .",
-    "start": "node .",
-    "zeebe": "./run-zeebe.sh",
-    "zeebe:insecure": "./insecure.sh",
-    "cert": "./generate-cert.sh",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "zbctl": "zbctl --certPath ./cert.pem status"
+    "test": "npm run test:insecure && npm run test:secure",
+    "test:insecure": "ZEEBE_INSECURE_CONNECTION=true npm run test:clients",
+    "test:secure": "ZEEBE_INSECURE_CONNECTION=false ZEEBE_CA_CERTIFICATE_PATH=./cert/rootCA.crt npm run test:clients",
+    "test:clients": "npm run test:zeebe-node && npm run test:zbctl",
+    "test:zbctl": "zbctl status",
+    "test:zeebe-node": "LOG_LEVEL=debug GRPC_VERBOSITY=DEBUG GRPC_TRACE=channel,subchannel,call_stream node index.js",
+    "generate-certs": "cd cert && ./setup.sh"
   },
   "keywords": [],
   "author": "Maciej Barelkowski <maciej.barelkowski@camunda.com>",

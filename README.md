@@ -13,16 +13,37 @@ This repo sets up a Zeebe instance with a self-signed certificate.
 
 ### Installation
 
+```sh
+npm install
 ```
-npm ci
+
+### Usage
+
+Prepare (generate certificates):
+
+```sh
+# generate certificates into ./cert
+npm run generate-certs
 ```
 
-This will trigger the certificate generation.
+Test in docker:
 
-From [`b7f2357`](https://github.com/barmac/zeebe-tls-connection-test/commit/b7f23576b60094211ccf61fae1e0ee9a349f4cba) on, the certificate needs to be added
-to the system keychain for the test to succeed.
+```
+# test with security enabled
+docker-compose up
 
-### Running
+# test with security disabled
+docker-compose --env-file .env.insecure up
+```
 
-In separate terminal windows run `npm run zeebe`, and after Zeebe instance is up, `npm start`.
-This should connect to the Zeebe instance with the self-signed certificate, and print the topology.
+Test locally (against running zeebe):
+
+```
+# test with security enabled
+# won't work with existing certificate unless
+# you alias localhost to test.test.localhost in /etc/hosts
+ZEEBE_ADDRESS=test.test.localhost:26500 npm run test:secure
+
+# test with security disabled
+npm run test:insecure
+```
