@@ -48,6 +48,4 @@ run().catch(err => {
   console.error('error', err);
 
   process.exit(1);
-}).finally(() => {
-	console.log('done');
 });
