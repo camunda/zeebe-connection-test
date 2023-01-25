@@ -38,7 +38,7 @@ docker-compose up
 docker-compose --env-file .env.insecure up
 ```
 
-### Test locally (against running zeebe)
+#### Test locally (against running zeebe)
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
