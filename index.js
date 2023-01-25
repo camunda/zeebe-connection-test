@@ -1,37 +1,44 @@
 const ZB = require('zeebe-node');
 
-const getSystemCertificates = require('./get-system-certificates');
+const fs = require('fs');
 
-void (async () => {
-	const systemCertificates = await getSystemCertificates();
+async function run() {
 
-	const zbc = new ZB.ZBClient('localhost:26500', {
-		onReady,
-		onConnectionError() {
-			console.error('Connection error');
-		},
-		loglevel: 'DEBUG',
-		useTLS: true,
-		retry: false,
-		customSSL: {
-			// For untrusted cert, use
-			// rootCerts: require('fs').readFileSync('./cert.pem'),
-			rootCerts: Buffer.from(systemCertificates.join('\n'))
-		}
-	});
+	const useTLS = process.env.ZEEBE_INSECURE_CONNECTION === 'false';
+	const address = process.env.ZEEBE_ADDRESS;
 
-	await printTopology();
+	const certsPath = process.env.ZEEBE_CA_CERTIFICATE_PATH;
+	const loglevel = process.env.LOG_LEVEL || 'info';
 
-	function onReady() {
-		console.log(`Connected!`);
-	}
+	const customSSL = certsPath && {
+		rootCerts: fs.readFileSync(certsPath)
+	};
 
-	async function printTopology() {
-		try {
-			const topology = await zbc.topology();
-			console.log('Topology:', JSON.stringify(topology, null, 2));
-		} catch (error) {
-			console.error('Couldn\'t get topology', error);
-		}
-	}
-})();
+	console.log(`
+		executing zeebe-node with config:
+
+			address   = ${ address }
+			useTLS    = ${ useTLS }
+			certsPath = ${ certsPath }
+			loglevel  = ${ loglevel }
+	`);
+
+  const zbc = new ZB.ZBClient(address, {
+  	loglevel,
+  	customSSL,
+  	useTLS,
+		retry: false
+  });
+
+  const topology = await zbc.topology();
+
+	console.log(JSON.stringify(topology, null, 2))
+}
+
+run().catch(err => {
+  console.error('zbc:error', err);
+
+  process.exit(1);
+}).finally(() => {
+	console.log('done');
+});
