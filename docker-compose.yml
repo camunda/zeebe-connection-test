@@ -16,14 +16,28 @@ services:
       - ./application.yaml:/usr/local/zeebe/config/application.yaml
       - ./cert/cert.pem:/usr/local/zeebe/cert.pem
       - ./cert/key.pem:/usr/local/zeebe/key.pem
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://0.0.0.0:9600/actuator/health" ]
+      interval: 5s
+      timeout: 15s
+      retries: 30
+      start_period: 60s
     ports:
       - "26500:26500"
+    networks:
+      - test
   zbctl:
     links:
       - "zeebe:test.test.localhost"
-    image: sitapati/zbctl:latest
+    image: node:18-alpine
     depends_on:
-      - zeebe
-    command: status --address 'test.test.localhost' --certPath /usr/local/zeebe/rootCA.crt
+      zeebe:
+        condition: service_healthy
+    command: sh -c "ping test.test.localhost -c 1 && npm install -g zbctl && zbctl status --address 'test.test.localhost' --certPath '/usr/local/zeebe/rootCA.crt'"
     volumes:
       - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
+    networks:
+      - test
+
+networks:
+  test:
