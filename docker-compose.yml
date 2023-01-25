@@ -1,0 +1,29 @@
+version: "2"
+
+services:
+  zeebe:
+    logging:
+      driver: none
+    container_name: zeebe_broker
+    image: camunda/zeebe:8.1.0
+    environment:
+      - ZEEBE_LOG_LEVEL=debug
+      - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
+      - ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=true
+      - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/cert.pem
+      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/key.pem
+    volumes:
+      - ./application.yaml:/usr/local/zeebe/config/application.yaml
+      - ./cert/cert.pem:/usr/local/zeebe/cert.pem
+      - ./cert/key.pem:/usr/local/zeebe/key.pem
+    ports:
+      - "26500:26500"
+  zbctl:
+    links:
+      - "zeebe:test.test.localhost"
+    image: sitapati/zbctl:latest
+    depends_on:
+      - zeebe
+    command: status --address 'test.test.localhost' --certPath /usr/local/zeebe/rootCA.crt
+    volumes:
+      - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
