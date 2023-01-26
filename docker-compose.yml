@@ -2,8 +2,6 @@ version: "2"
 
 services:
   zeebe:
-    logging:
-      driver: none
     container_name: zeebe_broker
     image: camunda/zeebe:8.1.0
     environment:
