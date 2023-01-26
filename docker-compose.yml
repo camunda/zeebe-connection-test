@@ -8,12 +8,12 @@ services:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
       - ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=${ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED:-true}
-      - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/cert.pem
-      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/key.pem
+      - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.crt
+      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.key
     volumes:
       - ./application.yaml:/usr/local/zeebe/config/application.yaml
-      - ./cert/cert.pem:/usr/local/zeebe/cert.pem
-      - ./cert/key.pem:/usr/local/zeebe/key.pem
+      - ./cert/server.crt:/usr/local/zeebe/server.crt
+      - ./cert/server.key:/usr/local/zeebe/server.key
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://0.0.0.0:9600/actuator/health" ]
       interval: 5s
@@ -26,37 +26,37 @@ services:
       - test
   zbctl-test:
     links:
-      - "zeebe:${ZEEBE_HOST:-test.test.localhost}"
+      - "zeebe:${ZEEBE_HOST:-sub.example.com}"
     image: node:16-alpine
     depends_on:
       zeebe:
         condition: service_healthy
     environment:
-      - ZEEBE_ADDRESS=${ZEEBE_HOST:-test.test.localhost}:26500
+      - ZEEBE_ADDRESS=${ZEEBE_HOST:-sub.example.com}:26500
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
-    command: sh -c "ping ${ZEEBE_HOST:-test.test.localhost} -c 1 && npx zbctl status -o json"
+      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.crt
+    command: sh -c "ping ${ZEEBE_HOST:-sub.example.com} -c 1 && npx zbctl status -o json"
     volumes:
-      - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
+      - ./cert/root.crt:/usr/local/zeebe/root.crt
     networks:
       - test
   zebee-node-test:
     links:
-      - "zeebe:test.test.localhost"
+      - "zeebe:${ZEEBE_HOST:-sub.example.com}"
     image: node:16-alpine
     depends_on:
       zeebe:
         condition: service_healthy
     environment:
-      - ZEEBE_ADDRESS=${ZEEBE_HOST:-test.test.localhost}:26500
+      - ZEEBE_ADDRESS=${ZEEBE_HOST:-sub.example.com}:26500
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
+      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.crt
       - LOG_LEVEL=debug
       - GRPC_VERBOSITY=DEBUG
       - GRPC_TRACE=channel,subchannel,call_stream
-    command: sh -c "ping ${ZEEBE_HOST:-test.test.localhost} -c 1 && cd /usr/local/zeebe && node index.js"
+    command: sh -c "ping ${ZEEBE_HOST:-sub.example.com} -c 1 && cd /usr/local/zeebe && node index.js"
     volumes:
-      - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
+      - ./cert/root.crt:/usr/local/zeebe/root.crt
       - ./index.js:/usr/local/zeebe/index.js
       - ./node_modules:/usr/local/zeebe/node_modules
     networks:
