@@ -46,7 +46,7 @@ If successful you should see `zeebe-node` and `zbctl` print the current cluster 
 ZEEBE_HOSTNAME=sub.example.com docker-compose up
 
 # test with security disabled
-docker-compose --env-file .env.insecure up
+ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 ```
 
 #### Test locally (against running zeebe)
