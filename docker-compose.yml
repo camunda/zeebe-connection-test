@@ -26,16 +26,16 @@ services:
       - test
   zbctl-test:
     links:
-      - "zeebe:test.test.localhost"
+      - "zeebe:${ZEEBE_HOST:-test.test.localhost}"
     image: node:16-alpine
     depends_on:
       zeebe:
         condition: service_healthy
     environment:
-      - ZEEBE_ADDRESS=test.test.localhost:26500
+      - ZEEBE_ADDRESS=${ZEEBE_HOST:-test.test.localhost}:26500
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
       - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
-    command: sh -c "ping test.test.localhost -c 1 && npm install -g zbctl && zbctl status"
+    command: sh -c "ping ${ZEEBE_HOST:-test.test.localhost} -c 1 && npm install -g zbctl && zbctl status"
     volumes:
       - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
     networks:
@@ -48,13 +48,13 @@ services:
       zeebe:
         condition: service_healthy
     environment:
-      - ZEEBE_ADDRESS=test.test.localhost:26500
+      - ZEEBE_ADDRESS=${ZEEBE_HOST:-test.test.localhost}:26500
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
       - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
       - LOG_LEVEL=debug
       - GRPC_VERBOSITY=DEBUG
       - GRPC_TRACE=channel,subchannel,call_stream
-    command: sh -c "ping test.test.localhost -c 1 && cd /usr/local/zeebe && node index.js"
+    command: sh -c "ping ${ZEEBE_HOST:-test.test.localhost} -c 1 && cd /usr/local/zeebe && node index.js"
     volumes:
       - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
       - ./index.js:/usr/local/zeebe/index.js
