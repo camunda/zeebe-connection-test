@@ -6,24 +6,22 @@ This repo provides the utilities to verify connection against a running (remote)
 
 It allows you to cover different cases, including secure communication to Zeebe, configured through a self-signed certificate.
 
-## Usage
-
-### Requirements
+## Requirements
 
 * Docker
 * openssl
 * NodeJS
 * npm
 
-### Installation
+## Installation
 
 ```sh
 npm install
 ```
 
-### Usage
+## Usage
 
-#### Generate certificates
+### Generate certificates
 
 ```sh
 # generate the following files into ./cert
@@ -37,7 +35,7 @@ npm install
 COMMON_NAME=example.com npm run generate-certs
 ```
 
-#### Test in Docker
+### Test in Docker
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
@@ -49,7 +47,7 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose up
 ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 ```
 
-#### Test locally, secured with TLS (against running zeebe)
+### Test locally, secured with TLS (against running zeebe)
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
@@ -72,7 +70,7 @@ To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) p
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
-#### Test locally, unsecured (against running zeebe)
+### Test locally, unsecured (against running zeebe)
 
 ```sh
 # start with security disabled
@@ -87,7 +85,7 @@ ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
 [ "$(npm run test:secure | grep '"gatewayVersion": "8.1.0"' -c)" = 2 ] || echo "error: missing output <gatewayVersion>"
 ```
 
-#### What else?
+### What else?
 
 There is a couple of things you can validate with the existing setup:
 
