@@ -1,0 +1,50 @@
+name: CI
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Use Node.js 16
+      uses: actions/setup-node@v3
+      with:
+        node-version: 16
+        cache: 'npm'
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Setup hosts
+      run: echo "127.0.0.1    test.test.localhost" | sudo tee -a /etc/hosts
+    - name: Generate certificates
+      run: npm run generate-certs
+
+    - name: Create Zebee container (secure)
+      run: docker-compose up --no-start zeebe
+    - name: Start Zebee (secure)
+      run: docker-compose up --detach zeebe
+    - name: Sleep for 10 seconds
+      run: sleep 10s
+    - name: Test (secure)
+      env:
+        ZEEBE_ADDRESS: test.test.localhost:26500
+      run: npm run test:secure
+    - name: Stop Zeebe (secure)
+      run: docker-compose down
+
+    - name: Create Zeebe container (secure)
+      run: docker-compose --env-file ./.env.insecure up --no-start zeebe
+    - name: Start Zebee (insecure)
+      run: docker-compose --env-file ./.env.insecure up --detach zeebe
+    - name: Sleep for 10 seconds
+      run: sleep 10s
+    - name: Test (insecure)
+      env:
+        ZEEBE_ADDRESS: test.test.localhost:26500
+      run: npm run test:insecure
+    - name: Stop Zeebe (insecure)
+      run: docker-compose down
