@@ -49,7 +49,7 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose up
 ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 ```
 
-#### Test locally (against running zeebe)
+#### Test locally, secured with TLS (against running zeebe)
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
@@ -71,6 +71,8 @@ To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) p
 ```sh
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
+
+#### Test locally, unsecured (against running zeebe)
 
 ```sh
 # start with security disabled
