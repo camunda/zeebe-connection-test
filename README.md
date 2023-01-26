@@ -69,7 +69,7 @@ ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate through the use the `--zeebe-ssl-certificate` flag:
 
 ```sh
-camunda-modeler --zeebe-ssl-certificate=cert/rootCA.crt
+camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
 ```sh
