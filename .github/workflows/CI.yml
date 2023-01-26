@@ -3,6 +3,11 @@ on:
   push:
   pull_request:
 
+env:
+  COMMON_NAME: example.com
+  ZEEBE_HOST: test.example.com
+  ZEEBE_ADDRESS: test.example.com:26500
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -19,7 +24,7 @@ jobs:
       run: npm ci
 
     - name: Setup hosts
-      run: echo "127.0.0.1    test.test.localhost" | sudo tee -a /etc/hosts
+      run: sh -c 'echo "127.0.0.1    $ZEEBE_HOST"' | sudo tee -a /etc/hosts
     - name: Generate certificates
       run: npm run generate-certs
 
@@ -30,8 +35,6 @@ jobs:
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (secure)
-      env:
-        ZEEBE_ADDRESS: test.test.localhost:26500
       run: |
         npm run test:secure | tee output.txt
         results=$(grep '"gatewayVersion": "8.1.0"' -c output.txt)
@@ -49,8 +52,6 @@ jobs:
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (insecure)
-      env:
-        ZEEBE_ADDRESS: test.test.localhost:26500
       run: |
         npm run test:insecure | tee output.txt
         results=$(grep '"gatewayVersion": "8.1.0"' -c output.txt)
