@@ -1,6 +1,10 @@
-# zeebe-tls-connection-test
+# zeebe-connection-test
 
-This repo sets up a Zeebe instance with a self-signed certificate.
+[![CI](https://github.com/camunda/zeebe-connection-test/actions/workflows/CI.yml/badge.svg)](https://github.com/camunda/zeebe-connection-test/actions/workflows/CI.yml)
+
+This repo provides the utilities to verify connection against a running (remote) Zeebe instance.
+
+It allows you to cover different cases, including secure communication to Zeebe, configured through a self-signed certificate.
 
 ## Usage
 
