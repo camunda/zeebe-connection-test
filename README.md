@@ -78,6 +78,8 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostnam must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
 | `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:26500` |
 
+#### Script
+
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
 ```sh
@@ -105,6 +107,8 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 | :--- | :--- |
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
 | `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:26500` |
+
+#### Script
 
 ```sh
 # (once) ensure the configured hostname resolves to 127.0.0.1
