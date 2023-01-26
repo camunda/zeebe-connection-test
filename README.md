@@ -88,8 +88,6 @@ ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sud
 ZEEBE_HOSTNAME=sub.example.com docker-compose up zeebe
 
 # test with security enabled
-# won't work with existing certificate unless
-# you sub.example.com resolves to 127.0.0.1
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
 ```
 
