@@ -61,4 +61,9 @@ docker-compose --env-file .env.insecure up zeebe
 
 # test with security disabled
 npm run test:insecure
+
+```sh
+# to validate that the output is correct verify
+# both the gateway version is produced twice, i.e. via
+[ "$(npm run test:secure | grep '"gatewayVersion": "8.1.0"' -c)" = 2 ] || echo "error: missing output <gatewayVersion>"
 ```
