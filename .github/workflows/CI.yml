@@ -32,7 +32,13 @@ jobs:
     - name: Test (secure)
       env:
         ZEEBE_ADDRESS: test.test.localhost:26500
-      run: npm run test:secure
+      run: |
+        npm run test:secure | tee output.txt
+        results=$(grep '"gatewayVersion": "8.1.0"' -c output.txt)
+        if [[ "$results" != "2" ]]; then
+          echo "missing <gatewayVersion>"
+          exit 1
+        fi
     - name: Stop Zeebe (secure)
       run: docker-compose down
 
@@ -45,6 +51,12 @@ jobs:
     - name: Test (insecure)
       env:
         ZEEBE_ADDRESS: test.test.localhost:26500
-      run: npm run test:insecure
+      run: |
+        npm run test:insecure | tee output.txt
+        results=$(grep '"gatewayVersion": "8.1.0"' -c output.txt)
+        if [[ "$results" != "2" ]]; then
+          echo "missing <gatewayVersion>"
+          exit 1
+        fi
     - name: Stop Zeebe (insecure)
       run: docker-compose down
