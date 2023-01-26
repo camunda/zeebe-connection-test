@@ -4,7 +4,7 @@
 
 This repo provides the utilities to verify connection against a running (remote) Zeebe instance.
 
-It allows you to cover different cases, including secure communication to Zeebe, configured through a self-signed certificate.
+It allows you to cover different cases, including secure communication to Zeebe. Bring your own certificates or use provided facilities to generate a root certificate as well as a self-signed certificate / private key used by the Zeebe server.
 
 ## Requirements
 
