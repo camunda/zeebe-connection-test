@@ -35,7 +35,7 @@ services:
       - ZEEBE_ADDRESS=${ZEEBE_HOST:-test.test.localhost}:26500
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
       - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/rootCA.crt
-    command: sh -c "ping ${ZEEBE_HOST:-test.test.localhost} -c 1 && npm install -g zbctl && zbctl status"
+    command: sh -c "ping ${ZEEBE_HOST:-test.test.localhost} -c 1 && npm install -g zbctl && zbctl status -o json"
     volumes:
       - ./cert/rootCA.crt:/usr/local/zeebe/rootCA.crt
     networks:

@@ -8,7 +8,7 @@
     "test:insecure": "ZEEBE_INSECURE_CONNECTION=true npm run test:clients",
     "test:secure": "ZEEBE_INSECURE_CONNECTION=false ZEEBE_CA_CERTIFICATE_PATH=./cert/rootCA.crt npm run test:clients",
     "test:clients": "npm run test:zeebe-node && npm run test:zbctl",
-    "test:zbctl": "zbctl status",
+    "test:zbctl": "zbctl status -o json",
     "test:zeebe-node": "LOG_LEVEL=debug GRPC_VERBOSITY=DEBUG GRPC_TRACE=channel,subchannel,call_stream node index.js",
     "generate-certs": "cd cert && ./setup.sh"
   },
