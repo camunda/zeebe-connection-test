@@ -21,21 +21,43 @@ npm install
 
 ## Usage
 
-### Generate certificates
+### Configure certificates
+
+You can bring your own root certificate + server certificate / private key pair and store them in `./cert` in the following format:
 
 ```sh
-# generate the following files into ./cert
-#
 # ./cert/root.crt   - root certificate
 # ./cert/server.crt - server certificate
 # ./cert/server.key - server private key
+```
+
+Alternatively use the contained script to generate them for a particular `COMMON_NAME`.
+
+#### Inputs
+
+| Name | Description |
+| :--- | :--- |
+| `COMMON_NAME` | Common name used in the generated server (wildcard) certificate. `ZEEBE_HOSTNAME`, the servers publicly visible host name must be a sub-domain of this common name matching `*.COMMON_NAME` (one level deep). |
+
+#### Script
+ 
+```sh
+# generate root certificate and server cert + private key into ./cert
 #
-# server.crt has *.COMMON_NAME as an ALT_NAME configured
-#
+# the server certificate has the wildcard pattern *.COMMON_NAME configured as an ALT_NAME
 COMMON_NAME=example.com npm run generate-certs
 ```
 
 ### Test in Docker
+
+#### Inputs
+
+| Name | Description |
+| :--- | :--- |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
+
+
+#### Script
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
@@ -47,12 +69,19 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose up
 ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 ```
 
-### Test locally, secured with TLS (against running zeebe)
+### Test locally, secured with TLS
+
+#### Inputs
+
+| Name | Description |
+| :--- | :--- |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostnam must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
+| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:26500` |
 
 If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
 
 ```sh
-# ensure sub.example.com resolves to 127.0.0.1
+# (once) ensure the configured hostname resolves to 127.0.0.1
 ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
 
 # start zeebe with security enabled
@@ -70,20 +99,35 @@ To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) p
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
-### Test locally, unsecured (against running zeebe)
+### Test locally, unsecured
+
+#### Inputs
+
+| Name | Description |
+| :--- | :--- |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
+| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:26500` |
 
 ```sh
+# (once) ensure the configured hostname resolves to 127.0.0.1
+ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
+
 # start with security disabled
 ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up zeebe
 
 # test with security disabled
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
+```
+
+### Programmatically validate the output
+
+Assert the correct output, i.e. by verifying correct cluster topology logs:
 
 ```sh
-# to validate that the output is correct verify
-# both the gateway version is produced twice, i.e. via
+# the gateway version is produced twice as we test against `zebee-node` and `zbctl` 
 [ "$(npm run test:secure | grep '"gatewayVersion": "8.1.0"' -c)" = 2 ] || echo "error: missing output <gatewayVersion>"
 ```
+
 
 ### What else?
 
