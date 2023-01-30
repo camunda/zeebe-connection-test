@@ -55,6 +55,7 @@ COMMON_NAME=example.com npm run generate-certs
 | Name | Description |
 | :--- | :--- |
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
+| `ZEEBE_PORT` | Portunder which the Zeebe gateway is available, default is `26500` |
 
 
 #### Script
@@ -76,7 +77,8 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 | Name | Description |
 | :--- | :--- |
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostnam must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
-| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:26500` |
+| `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT` |
 
 #### Script
 
@@ -106,7 +108,8 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 | Name | Description |
 | :--- | :--- |
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
-| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:26500` |
+| `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT` |
 
 #### Script
 
