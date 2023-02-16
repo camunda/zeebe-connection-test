@@ -9,12 +9,12 @@ services:
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
       - ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=${ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED:-true}
       - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.crt
-      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.key
+      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.pem
       - ZEEBE_BROKER_GATEWAY_NETWORK_PORT=${ZEEBE_PORT:-26500}
     volumes:
       - ./application.yaml:/usr/local/zeebe/config/application.yaml
       - ./cert/server.crt:/usr/local/zeebe/server.crt
-      - ./cert/server.key:/usr/local/zeebe/server.key
+      - ./cert/server.pem:/usr/local/zeebe/server.pem
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://0.0.0.0:9600/actuator/health" ]
       interval: 5s
