@@ -7,8 +7,9 @@ on:
 
 env:
   COMMON_NAME: example.com
-  ZEEBE_HOST: test.example.com
+  ZEEBE_HOSTNAME: test.example.com
   ZEEBE_ADDRESS: test.example.com:26500
+  NGINX_PORT: 443
 
 jobs:
   build:
@@ -30,7 +31,7 @@ jobs:
       run: npm ci
 
     - name: Setup hosts
-      run: sh -c 'echo "127.0.0.1    $ZEEBE_HOST"' | sudo tee -a /etc/hosts
+      run: sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
     - name: Generate certificates
       run: npm run generate-certs
 
@@ -53,7 +54,33 @@ jobs:
     - name: Stop Zeebe (secure)
       run: docker-compose down
 
-    - name: Create Zeebe container (secure)
+    - name: Copy certs for nginx reverse proxy
+      run: |
+        cp ./cert/server.key ./cert/${{env.ZEEBE_HOSTNAME}}.key
+        cp ./cert/server.crt ./cert/${{env.ZEEBE_HOSTNAME}}.crt
+    - name: Create Zebee container (secure with nginx reverse proxy)
+      run: docker-compose --env-file ./.env.nginx up --no-start zeebe nginx
+    - name: Start Zebee (secure with nginx reverse proxy)
+      run: docker-compose --env-file ./.env.nginx up --detach zeebe nginx
+    - name: Sleep for 10 seconds
+      run: sleep 10s
+    - name: Test (secure with nginx reverse proxy)
+      env:
+        ZEEBE_ADDRESS: ${{env.ZEEBE_HOSTNAME}}:${{env.NGINX_PORT}}
+      run: |
+        npm run test:secure | tee output.txt
+        results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
+        if [[ "$results" != "2" ]]; then
+          echo "missing <gatewayVersion>"
+          exit 1
+        fi
+    - name: Stop Zeebe (secure with nginx reverse proxy)
+      run: docker-compose down
+    - name: Clean up certs of nginx reverse proxy
+      run: |
+        rm ./cert/${{env.ZEEBE_HOSTNAME}}.key ./cert/${{env.ZEEBE_HOSTNAME}}.crt
+
+    - name: Create Zeebe container (insecure)
       run: docker-compose --env-file ./.env.insecure up --no-start zeebe
     - name: Start Zebee (insecure)
       run: docker-compose --env-file ./.env.insecure up --detach zeebe
@@ -69,3 +96,15 @@ jobs:
         fi
     - name: Stop Zeebe (insecure)
       run: docker-compose down
+
+    - name: Collect docker logs
+      if: failure()
+      uses: jwalton/gh-docker-logs@v2
+      with:
+        dest: ./logs
+    - name: Upload logs to GitHub
+      if: failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: docker-compose-logs
+        path: ./logs

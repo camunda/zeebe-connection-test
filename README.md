@@ -74,11 +74,12 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 
 #### Inputs
 
-| Name | Description |
-| :--- | :--- |
+| Name             | Description                                                                                                                                                                                             |
+|:-----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostnam must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
-| `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
-| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT` |
+| `ZEEBE_PORT`     | Port under which the Zeebe gateway is available, default is `26500`                                                                                                                                     |
+| `ZEEBE_ADDRESS`  | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT`                                                                                                                                            |
+| `NGINX_PORT`     | Port under which the Nginx reverse proxy is available, default is `443`                                                                                                       |
 
 #### Script
 
@@ -90,6 +91,9 @@ ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sud
 
 # start zeebe with security enabled
 ZEEBE_HOSTNAME=sub.example.com docker-compose up zeebe
+
+# start zeebe with  nginx reverse proxy terminating TLS and security disabled
+ZEEBE_HOSTNAME=sub.example.com ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=false docker-compose up zeebe nginx
 
 # test with security enabled
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
