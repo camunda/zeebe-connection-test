@@ -2,9 +2,9 @@
 
 [![CI](https://github.com/camunda/zeebe-connection-test/actions/workflows/CI.yml/badge.svg)](https://github.com/camunda/zeebe-connection-test/actions/workflows/CI.yml)
 
-This repo provides the utilities to verify connection against a running (remote) Zeebe instance.
+This repo provides the utilities to test connections (secure and insecure) to a running (remote) Zeebe instance.
 
-It allows you to cover different cases, including secure communication to Zeebe. Bring your own certificates or use provided facilities to generate a root certificate as well as a self-signed certificate / private key used by the Zeebe server.
+To test secure communication [bring your own certificates](#configure-certificates) or [generate what you need](#generate-certificates) to communicate with Zeebe securely.
 
 ## Requirements
 
@@ -21,7 +21,16 @@ npm install
 
 ## Usage
 
-### Configure certificates
+Use this package to perform various tests and test preparations:
+
+* [Configure certificates](#configure-certificates)
+* [Generate certificates](#generate-certificates)
+* [Test: Secure connection to Zeebe](#test-secure-connection-to-zeebe)
+* [Test: Secure connection to Zeebe via reverse proxy](#test-secure-connection-to-zeebe-via-reverse-proxy)
+* [Test: Insecure connection to Zeebe](#test-insecure-connection-to-zeebe)
+
+
+## Configure certificates
 
 You can bring your own root certificate + server certificate / private key pair and store them in `./cert` in the following format:
 
@@ -31,7 +40,11 @@ You can bring your own root certificate + server certificate / private key pair 
 # ./cert/server.key - server private key
 ```
 
-Alternatively use the contained script to generate them for a particular `COMMON_NAME`.
+Alternatively use the [contained script](#generate-certificates) to generate them for a particular `COMMON_NAME`.
+
+## Generate certificates
+
+Generate a chain of trust, private keys and certificates for a particular `COMMON_NAME`.
 
 #### Inputs
 
@@ -48,29 +61,8 @@ Alternatively use the contained script to generate them for a particular `COMMON
 COMMON_NAME=example.com npm run generate-certs
 ```
 
-### Test in Docker
 
-#### Inputs
-
-| Name | Description |
-| :--- | :--- |
-| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
-| `ZEEBE_PORT` | Portunder which the Zeebe gateway is available, default is `26500` |
-
-
-#### Script
-
-If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
-
-```sh
-# test with security enabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose up
-
-# test with security disabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
-```
-
-### Test locally, secured with TLS
+## Test: Secure connection to Zeebe
 
 #### Inputs
 
@@ -102,9 +94,9 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
 
-### Test locally, secured with TLS (terminated by reverse proxy)
+## Test: Secure connection to Zeebe via reverse proxy
 
-> **Note:** This is a variation of [local, secured testing](#test-locally-secured-with-tls), just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) that terminates the SSL connection.
+> **Note:** This is a variation of [securely connecting](#test-secure-connection-to-zeebe), just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) that terminates the SSL connection.
 
 #### Inputs
 
@@ -136,7 +128,8 @@ To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) p
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
-### Test locally, insecure
+
+## Test: Insecure connection to Zeebe
 
 #### Inputs
 
@@ -159,7 +152,31 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up zeebe
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
 ```
 
-### Programmatically validate the output
+
+## Test in Docker
+
+#### Inputs
+
+| Name | Description |
+| :--- | :--- |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
+| `ZEEBE_PORT` | Portunder which the Zeebe gateway is available, default is `26500` |
+
+
+#### Script
+
+If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
+
+```sh
+# test with security enabled
+ZEEBE_HOSTNAME=sub.example.com docker-compose up
+
+# test with security disabled
+ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
+```
+
+
+## Programmatically validate the output
 
 Assert the correct output, i.e. by verifying correct cluster topology logs:
 
@@ -169,7 +186,7 @@ Assert the correct output, i.e. by verifying correct cluster topology logs:
 ```
 
 
-### What else?
+## What else?
 
 There is a couple of things you can validate with the existing setup:
 
