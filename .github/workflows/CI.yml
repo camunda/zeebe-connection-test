@@ -53,7 +53,7 @@ jobs:
     - name: Stop Zeebe (secure)
       run: docker-compose down
 
-    - name: Create Zeebe container (secure)
+    - name: Create Zeebe container (insecure)
       run: docker-compose --env-file ./.env.insecure up --no-start zeebe
     - name: Start Zebee (insecure)
       run: docker-compose --env-file ./.env.insecure up --detach zeebe
