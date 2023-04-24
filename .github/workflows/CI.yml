@@ -8,7 +8,6 @@ on:
 env:
   COMMON_NAME: example.com
   ZEEBE_HOST: test.example.com
-  ZEEBE_ADDRESS: test.example.com:26500
 
 jobs:
   build:
@@ -43,6 +42,8 @@ jobs:
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (secure)
+      env:
+        ZEEBE_ADDRESS: test.example.com:26500
       run: |
         npm run test:secure | tee output.txt
         results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
@@ -53,6 +54,27 @@ jobs:
     - name: Stop Zeebe (secure)
       run: docker-compose down
 
+    - name: Create Zebee container (insecure) + reverse proxy
+      env:
+        ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
+      run: docker-compose --env-file ./.env.proxy up  --no-start zeebe proxy
+    - name: Start Zebee (insecure) + reverse proxy
+      run: docker-compose --env-file ./.env.proxy up --detach zeebe proxy
+    - name: Sleep for 10 seconds
+      run: sleep 10s
+    - name: Test (secure)
+      env:
+        ZEEBE_ADDRESS: test.example.com:443
+      run: |
+        npm run test:secure | tee output.txt
+        results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
+        if [[ "$results" != "2" ]]; then
+          echo "missing <gatewayVersion>"
+          exit 1
+        fi
+    - name: Stop Zebee (insecure) + reverse proxy
+      run: docker-compose down
+
     - name: Create Zeebe container (insecure)
       run: docker-compose --env-file ./.env.insecure up --no-start zeebe
     - name: Start Zebee (insecure)
@@ -60,6 +82,8 @@ jobs:
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (insecure)
+      env:
+        ZEEBE_ADDRESS: test.example.com:26500
       run: |
         npm run test:insecure | tee output.txt
         results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
