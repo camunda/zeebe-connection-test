@@ -1,0 +1,10 @@
+server {
+  listen ${PROXY_PORT} http2 ssl;
+
+  ssl_certificate /usr/local/proxy/server.pem;
+  ssl_certificate_key /usr/local/proxy/server.crt;
+
+  location / {
+    grpc_pass grpc://${ZEEBE_HOSTNAME}:${ZEEBE_PORT};
+  }
+}

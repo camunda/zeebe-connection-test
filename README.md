@@ -76,7 +76,7 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
 
 | Name | Description |
 | :--- | :--- |
-| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostnam must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostname must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
 | `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
 | `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT` |
 
@@ -93,6 +93,41 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose up zeebe
 
 # test with security enabled
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
+```
+
+To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate through the use the `--zeebe-ssl-certificate` flag:
+
+```sh
+camunda-modeler --zeebe-ssl-certificate=cert/root.crt
+```
+
+
+### Test locally, secured with TLS (terminated by reverse proxy)
+
+> **Note:** This is a variation of local, secured testing, just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) that terminates the SSL connection.
+
+#### Inputs
+
+| Name | Description |
+| :--- | :--- |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance and reverse proxy are available in the network. A valid hostname must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
+| `PROXY_PORT` | Port under which the reverse proxy is available, default is `443` |
+| `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:PROXY_PORT` |
+
+#### Script
+
+If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
+
+```sh
+# (once) ensure the configured hostname resolves to 127.0.0.1
+ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
+
+# start zeebe with security enabled
+ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.proxy up zeebe proxy
+
+# test with security enabled
+ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
 ```
 
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate through the use the `--zeebe-ssl-certificate` flag:

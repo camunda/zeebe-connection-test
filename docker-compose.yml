@@ -25,6 +25,26 @@ services:
       - "${ZEEBE_PORT:-26500}:${ZEEBE_PORT:-26500}"
     networks:
       - test
+  proxy:
+    links:
+      - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
+    container_name: proxy
+    image: nginx
+    depends_on:
+      zeebe:
+        condition: service_healthy
+    environment:
+      - ZEEBE_PORT=${ZEEBE_PORT:-26500}
+      - ZEEBE_HOSTNAME=${ZEEBE_HOSTNAME:-sub.example.com}
+      - PROXY_PORT=${PROXY_PORT:-443}
+    volumes:
+      - ./nginx/templates:/etc/nginx/templates
+      - ./cert/server.crt:/usr/local/proxy/server.pem
+      - ./cert/server.pem:/usr/local/proxy/server.crt
+    ports:
+      - "${PROXY_PORT:-443}:${PROXY_PORT:-443}"
+    networks:
+      - test
   zbctl-test:
     links:
       - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
