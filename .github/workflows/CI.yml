@@ -7,7 +7,7 @@ on:
 
 env:
   COMMON_NAME: example.com
-  ZEEBE_HOST: test.example.com
+  ZEEBE_HOSTNAME: test.example.com
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
       run: npm ci
 
     - name: Setup hosts
-      run: sh -c 'echo "127.0.0.1    $ZEEBE_HOST"' | sudo tee -a /etc/hosts
+      run: sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
     - name: Generate certificates
       run: npm run generate-certs
 
