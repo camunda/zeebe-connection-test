@@ -104,7 +104,7 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 
 ### Test locally, secured with TLS (terminated by reverse proxy)
 
-> **Note:** This is a variation of local, secured testing, just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) that terminates the SSL connection.
+> **Note:** This is a variation of [local, secured testing](#test-locally-secured-with-tls), just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) that terminates the SSL connection.
 
 #### Inputs
 
@@ -136,7 +136,7 @@ To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) p
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
-### Test locally, unsecured
+### Test locally, insecure
 
 #### Inputs
 
