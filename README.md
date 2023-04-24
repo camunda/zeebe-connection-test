@@ -87,7 +87,7 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose up zeebe
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
 ```
 
-To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate through the use the `--zeebe-ssl-certificate` flag:
+To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
 
 ```sh
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
@@ -122,7 +122,7 @@ ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.proxy up zeebe pro
 ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
 ```
 
-To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate through the use the `--zeebe-ssl-certificate` flag:
+To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
 
 ```sh
 camunda-modeler --zeebe-ssl-certificate=cert/root.crt
