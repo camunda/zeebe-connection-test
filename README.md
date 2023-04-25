@@ -64,6 +64,8 @@ COMMON_NAME=example.com npm run generate-certs
 
 ## Test: Secure connection to Zeebe
 
+In this test we securely connect our client to a Zeebe instance via TLS. We validate the Zeebe server certificate through a shared chain of trust as we establish the connection.
+
 #### Inputs
 
 | Name | Description |
@@ -96,7 +98,9 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 
 ## Test: Secure connection to Zeebe via reverse proxy
 
-> **Note:** This is a variation of [securely connecting](#test-secure-connection-to-zeebe), just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) that terminates the SSL connection.
+> **Note:** This is a variation of [securely connecting](#test-secure-connection-to-zeebe), just so that Zeebe is hidden behind a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/).
+
+In this test we securely connect our client to a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) via TLS. That proxy terminates the secured connection and forwards traffic to Zeebe gateway in plain text. We validate the proxy server certificate through a shared chain of trust as we establish the connection.
 
 #### Inputs
 
@@ -130,6 +134,8 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 
 
 ## Test: Insecure connection to Zeebe
+
+In this test we connect to Zeebe in an insecure (plain text) fashion.
 
 #### Inputs
 
