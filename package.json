@@ -17,7 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "zbctl": "^8.2.0-alpha5",
-    "zeebe-node": "^8.2.0"
+    "zeebe-node": "^8.2.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"
