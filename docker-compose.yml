@@ -3,7 +3,7 @@ version: "2"
 services:
   zeebe:
     container_name: zeebe_broker
-    image: camunda/zeebe:${ZEEBE_VERSION:-8.1.0}
+    image: camunda/zeebe:${ZEEBE_VERSION:-8.2.0}
     environment:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
