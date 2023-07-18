@@ -16,7 +16,7 @@
   "author": "Maciej Barelkowski <maciej.barelkowski@camunda.com>",
   "license": "MIT",
   "dependencies": {
-    "zbctl": "^8.2.0-alpha5",
+    "zbctl": "^8.2.6",
     "zeebe-node": "^8.2.5"
   },
   "devDependencies": {
