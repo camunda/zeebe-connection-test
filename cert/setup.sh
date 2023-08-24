@@ -33,8 +33,8 @@ distinguished_name = dn
 C = US
 ST = California
 L = San Fransisco
-O = MLopsHub
-OU = MlopsHub Dev
+O = TEST ORG
+OU = TEST ORG Dev
 CN = localhost
 
 [ req_ext ]
