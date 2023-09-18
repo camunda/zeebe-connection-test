@@ -83,7 +83,7 @@ If successful you should see `zeebe-node` and `zbctl` print the current cluster 
 ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
 
 # start zeebe with security enabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose up zeebe
+ZEEBE_HOSTNAME=sub.example.com docker compose up zeebe
 
 # test with security enabled
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
@@ -120,7 +120,7 @@ If successful you should see `zeebe-node` and `zbctl` print the current cluster 
 ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
 
 # start zeebe with security enabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.proxy up zeebe proxy
+ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.proxy up zeebe proxy
 
 # test with security enabled
 ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
@@ -152,7 +152,7 @@ In this test we connect to Zeebe in an insecure (plain text) fashion.
 ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
 
 # start with security disabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up zeebe
+ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.insecure up zeebe
 
 # test with security disabled
 ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
@@ -175,10 +175,10 @@ If successful you should see `zeebe-node` and `zbctl` print the current cluster 
 
 ```sh
 # test with security enabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose up
+ZEEBE_HOSTNAME=sub.example.com docker compose up
 
 # test with security disabled
-ZEEBE_HOSTNAME=sub.example.com docker-compose --env-file .env.insecure up
+ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.insecure up
 ```
 
 
