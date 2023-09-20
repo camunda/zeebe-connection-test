@@ -39,7 +39,7 @@ fi
 check_endpoint_reachability() {
     local endpoint="$1"
 
-    echo -n "Verifying <$endpoint> is reachable"
+    echo -n "Checking <$endpoint> is reachable"
     if curl -Is --connect-timeout 5 "$endpoint" >/dev/null; then
         echo " [OK]"
     else
@@ -56,7 +56,7 @@ validate_ssl() {
     local additional_opts="${@:2}"
 
     if [[ "x$VALIDATE_SSL" != "x" ]] || [[ "$endpoint" == *443 ]]; then
-      echo -n "Verifying <$endpoint> SSL configuration"
+      echo -n "Checking <$endpoint> SSL configuration"
 
       if timeout 2 openssl s_client ${additional_opts} -connect "$endpoint" -servername="$server_name" < /dev/null 2>/dev/null | openssl x509 -noout -checkend 0 > /dev/null 2>/dev/null; then
           echo " [OK]"
@@ -76,7 +76,7 @@ check_oauth_token_url() {
     # Make a request to obtain an OAuth token using the client ID and client secret
     local response
 
-    echo -n "Verifying <$oauth_token_url> returns valid JWT token"
+    echo -n "Checking <$oauth_token_url> returns valid JWT token"
     response=$(curl -s -X POST "$oauth_token_url" -d "grant_type=client_credentials" -d "client_id=$CLIENT_ID" -d "audience=$TOKEN_AUDIENCE" -d "client_secret=$CLIENT_SECRET")
 
     if echo "$response" | jq -e '.access_token' >/dev/null; then
