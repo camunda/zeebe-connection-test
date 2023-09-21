@@ -1,5 +1,28 @@
 #!/bin/bash
 
+modeler_postgresql_password=$(kubectl get secret cpt-postgresql-web-modeler -o json | jq -r .data.\"postgres-password\" | sed 's/\"//g' | sed 's/\n//g' | base64 -d)
+
+
+if [[ "$ZEEBE_ADDRESS" == "" ]]; then
+  echo "Pre-filling unset env vars"
+  keycloak_base_url="$(kubectl get ingress cpt-keycloak -o json | jq -c -r .spec.rules | jq -c -r '.[0].host')"
+  token_endpoint="$(curl -X GET $keycloak_base_url/auth/realms/camunda-platform/.well-known/openid-configuration | jq .token_endpoint)"
+  zeebe_address="$(kubectl get ingress cpt-zeebe-gateway -o json | jq -c -r .spec.rules | jq -c -r '.[0].host')"":443"
+  zeebe_client_id=zeebe
+  zeebe_secret=$(kubectl get secret cpt-zeebe-identity-secret -o json | jq -r .data.\"zeebe-secret\" | sed 's/\"//g' | sed 's/\n//g' | base64 -d)
+  token_audience=zeebe-api
+
+  export ZEEBE_ADDRESS=$zeebe_address
+  echo ZEEBE_ADDRESS=$zeebe_address
+  export OAUTH_URL=$token_endpoint
+  echo OAUTH_URL=$keycloak_base_url
+  export CLIENT_ID=$zeebe_client_id
+  echo CLIENT_ID=$zeebe_client_id
+  export TOKEN_AUDIENCE=$token_audience
+  echo TOKEN_AUDIENCE=$token_audience
+
+
+fi
 ZEEBE_ADDRESS="${ZEEBE_ADDRESS:-}"
 OAUTH_URL="${OAUTH_URL:-}"
 
