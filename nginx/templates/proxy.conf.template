@@ -1,5 +1,6 @@
 server {
-  listen ${PROXY_PORT} http2 ssl;
+  listen ${PROXY_PORT} ssl;
+  http2 on;
 
   ssl_certificate /usr/local/proxy/server.pem;
   ssl_certificate_key /usr/local/proxy/server.crt;
