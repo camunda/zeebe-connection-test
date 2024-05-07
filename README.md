@@ -133,6 +133,34 @@ camunda-modeler --zeebe-ssl-certificate=cert/root.crt
 ```
 
 
+## Test: Basic auth secured Zeebe via reverse proxy
+
+> This test is meant to be performed manually via the Camunda (Desktop) Modeler
+
+In this test we connect our client to a [reverse proxy](https://www.cloudflare.com/learning/cdn/glossary/reverse-proxy/) via an insecure connection. The proxy enforces basic auth (`demo:demo`) and forwards traffic to the Zeebe gateway.
+
+| Name | Description |
+| :--- | :--- |
+| `ZEEBE_HOSTNAME` | Name under which the Zeebe instance and reverse proxy are available in the network. |
+| `PROXY_PORT` | Port under which the reverse proxy is available, default is `8181` |
+| `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:PROXY_PORT` |
+
+#### Script
+
+At this time only basic setup steps are provided.
+
+```sh
+# (once) ensure the configured hostname resolves to 127.0.0.1
+ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
+
+# start zeebe with security enabled
+ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.proxy up zeebe proxy
+```
+
+To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) specify self-managed, `http://sub.example.com`, basic auth and pass `demo:demo` as credentials.
+
+
 ## Test: Insecure connection to Zeebe
 
 In this test we connect to Zeebe in an insecure (plain text) fashion.

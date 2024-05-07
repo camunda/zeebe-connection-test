@@ -1,11 +1,11 @@
 server {
-  listen ${PROXY_PORT} ssl;
+  listen ${PROXY_PORT};
   http2 on;
 
-  ssl_certificate /usr/local/proxy/server.pem;
-  ssl_certificate_key /usr/local/proxy/server.crt;
-
   location / {
+    auth_basic "Secured";
+    auth_basic_user_file /etc/nginx/.htpasswd;
+
     grpc_pass grpc://${ZEEBE_HOSTNAME}:${ZEEBE_PORT};
   }
 }
