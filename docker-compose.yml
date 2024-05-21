@@ -3,7 +3,7 @@ version: "2"
 services:
   zeebe:
     container_name: zeebe_broker
-    image: camunda/zeebe:${ZEEBE_VERSION:-8.2.0}
+    image: camunda/zeebe:${ZEEBE_VERSION:-8.5.1}
     environment:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
@@ -79,6 +79,27 @@ services:
     volumes:
       - ./cert/root.crt:/usr/local/zeebe/root.crt
       - ./index.js:/usr/local/zeebe/index.js
+      - ./node_modules:/usr/local/zeebe/node_modules
+    networks:
+      - test
+  camunda-sdk-test:
+    links:
+      - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
+    image: node:16-alpine
+    depends_on:
+      zeebe:
+        condition: service_healthy
+    environment:
+      - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
+      - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
+      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.crt
+      - LOG_LEVEL=debug
+      - GRPC_VERBOSITY=DEBUG
+      - GRPC_TRACE=channel,subchannel,call_stream
+    command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && cd /usr/local/zeebe && node camunda-sdk.js"
+    volumes:
+      - ./cert/root.crt:/usr/local/zeebe/root.crt
+      - ./camunda-sdk.js:/usr/local/zeebe/camunda-sdk.js
       - ./node_modules:/usr/local/zeebe/node_modules
     networks:
       - test
