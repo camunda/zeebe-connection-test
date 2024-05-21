@@ -14,16 +14,18 @@ jobs:
     strategy:
       matrix:
         zeebeVersion: [8.1.0, 8.2.2]
+        nodeVersion:
+        - 20
     runs-on: ubuntu-latest
     env:
       ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
-    - name: Use Node.js 16
-      uses: actions/setup-node@v3
+      uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
       with:
-        node-version: 16
+        node-version: ${{ matrix.nodeVersion }}
         cache: 'npm'
     - name: Install dependencies
       run: npm ci
