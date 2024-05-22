@@ -48,7 +48,7 @@ services:
   zbctl-test:
     links:
       - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: node:16-alpine
+    image: "node:${NODE_VERSION:-20}-alpine"
     depends_on:
       zeebe:
         condition: service_healthy
@@ -64,7 +64,7 @@ services:
   zebee-node-test:
     links:
       - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: node:16-alpine
+    image: "node:${NODE_VERSION:-20}-alpine"
     depends_on:
       zeebe:
         condition: service_healthy
@@ -85,7 +85,7 @@ services:
   camunda-sdk-test:
     links:
       - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: node:16-alpine
+    image: "node:${NODE_VERSION:-20}-alpine"
     depends_on:
       zeebe:
         condition: service_healthy
