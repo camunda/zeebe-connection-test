@@ -20,6 +20,7 @@ jobs:
     env:
       ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
       NODE_VERSION: ${{ matrix.nodeVersion }}
+      TEST_COUNT: 3
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -50,7 +51,7 @@ jobs:
       run: |
         npm run test:secure | tee output.txt
         results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
-        if [[ "$results" != "2" ]]; then
+        if [[ "$results" != "$TEST_COUNT" ]]; then
           echo "missing <gatewayVersion>"
           exit 1
         fi
@@ -71,7 +72,7 @@ jobs:
       run: |
         npm run test:secure | tee output.txt
         results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
-        if [[ "$results" != "2" ]]; then
+        if [[ "$results" != "$TEST_COUNT" ]]; then
           echo "missing <gatewayVersion>"
           exit 1
         fi
@@ -90,7 +91,7 @@ jobs:
       run: |
         npm run test:insecure | tee output.txt
         results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
-        if [[ "$results" != "2" ]]; then
+        if [[ "$results" != "$TEST_COUNT" ]]; then
           echo "missing <gatewayVersion>"
           exit 1
         fi
