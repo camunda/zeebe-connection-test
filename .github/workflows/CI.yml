@@ -50,7 +50,7 @@ jobs:
         ZEEBE_ADDRESS: test.example.com:26500
       run: |
         npm run test:secure | tee output.txt
-        results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
+        results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
         if [[ "$results" != "$TEST_COUNT" ]]; then
           echo "missing <gatewayVersion>"
           exit 1
@@ -71,7 +71,7 @@ jobs:
         ZEEBE_ADDRESS: test.example.com:443
       run: |
         npm run test:secure | tee output.txt
-        results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
+        results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
         if [[ "$results" != "$TEST_COUNT" ]]; then
           echo "missing <gatewayVersion>"
           exit 1
@@ -90,7 +90,7 @@ jobs:
         ZEEBE_ADDRESS: test.example.com:26500
       run: |
         npm run test:insecure | tee output.txt
-        results=$(grep "\"gatewayVersion\": \"${ZEEBE_VERSION}\"" -c output.txt)
+        results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
         if [[ "$results" != "$TEST_COUNT" ]]; then
           echo "missing <gatewayVersion>"
           exit 1
