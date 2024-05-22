@@ -19,6 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
+      NODE_VERSION: ${{ matrix.nodeVersion }}
     steps:
     - name: Checkout
       uses: actions/checkout@v4
