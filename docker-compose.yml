@@ -36,13 +36,14 @@ services:
     environment:
       - ZEEBE_PORT=${ZEEBE_PORT:-26500}
       - ZEEBE_HOSTNAME=${ZEEBE_HOSTNAME:-sub.example.com}
-      - PROXY_PORT=${PROXY_PORT:-443}
+      - PROXY_PORT=${PROXY_PORT:-8181}
     volumes:
       - ./nginx/templates:/etc/nginx/templates
+      - ./nginx/.htpasswd:/etc/nginx/.htpasswd
       - ./cert/server.crt:/usr/local/proxy/server.pem
       - ./cert/server.pem:/usr/local/proxy/server.crt
     ports:
-      - "${PROXY_PORT:-443}:${PROXY_PORT:-443}"
+      - "${PROXY_PORT:-8181}:${PROXY_PORT:-8181}"
     networks:
       - test
   zbctl-test:
