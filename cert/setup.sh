@@ -12,12 +12,12 @@ openssl req -x509 \
             -nodes \
             -newkey rsa:4096 \
             -subj "/CN=$COMMON_NAME/C=US/L=San Fransisco" \
-            -keyout root.key -out root.crt
+            -keyout root.key.pem -out root.cert.pem
 
 # Generate Private key
 
-openssl genrsa -out server.key 4096
-openssl pkcs8 -topk8 -inform pem -in server.key -outform pem -nocrypt -out server.pem
+openssl genrsa -out server.key.pem 4096
+openssl pkcs8 -topk8 -inform pem -in server.key.pem -outform pem -nocrypt -out server.cert.pem
 
 # Create csf conf
 
@@ -47,7 +47,7 @@ EOF
 
 # create CSR request using private key
 
-openssl req -new -key server.pem -out server.csr -config server.csr.conf
+openssl req -new -key server.cert.pem -out server.csr -config server.csr.conf
 
 # Create a external config file for the certificate
 
@@ -67,7 +67,7 @@ EOF
 
 openssl x509 -req \
     -in server.csr \
-    -CA root.crt -CAkey root.key \
+    -CA root.cert.pem -CAkey root.key.pem \
     -CAcreateserial -out server.crt \
     -days 365 \
     -sha256 -extfile server.cert.conf

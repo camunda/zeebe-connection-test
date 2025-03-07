@@ -8,13 +8,13 @@ services:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
       - ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED=${ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED:-true}
-      - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.crt
-      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.pem
+      - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.cert.pem
+      - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.key.pem
       - ZEEBE_BROKER_GATEWAY_NETWORK_PORT=${ZEEBE_PORT:-26500}
     volumes:
       - ./application.yaml:/usr/local/zeebe/config/application.yaml
-      - ./cert/server.crt:/usr/local/zeebe/server.crt
-      - ./cert/server.pem:/usr/local/zeebe/server.pem
+      - ./cert/server.cert.pem:/usr/local/zeebe/server.cert.pem
+      - ./cert/server.key.pem:/usr/local/zeebe/server.key.pem
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://0.0.0.0:9600/actuator/health" ]
       interval: 5s
@@ -39,8 +39,8 @@ services:
       - PROXY_PORT=${PROXY_PORT:-443}
     volumes:
       - ./nginx/templates:/etc/nginx/templates
-      - ./cert/server.crt:/usr/local/proxy/server.pem
-      - ./cert/server.pem:/usr/local/proxy/server.crt
+      - ./cert/server.cert.pem:/usr/local/proxy/server.cert.pem
+      - ./cert/server.key.pem:/usr/local/proxy/server.key.pem
     ports:
       - "${PROXY_PORT:-443}:${PROXY_PORT:-443}"
     networks:
@@ -55,10 +55,10 @@ services:
     environment:
       - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.crt
+      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.cert.pem
     command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && npx zbctl status -o json"
     volumes:
-      - ./cert/root.crt:/usr/local/zeebe/root.crt
+      - ./cert/root.cert.pem:/usr/local/zeebe/root.cert.pem
     networks:
       - test
   zebee-node-test:
@@ -71,13 +71,13 @@ services:
     environment:
       - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.crt
+      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.cert.pem
       - LOG_LEVEL=debug
       - GRPC_VERBOSITY=DEBUG
       - GRPC_TRACE=channel,subchannel,call_stream
     command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && cd /usr/local/zeebe && node index.js"
     volumes:
-      - ./cert/root.crt:/usr/local/zeebe/root.crt
+      - ./cert/root.cert.pem:/usr/local/zeebe/root.cert.pem
       - ./index.js:/usr/local/zeebe/index.js
       - ./node_modules:/usr/local/zeebe/node_modules
     networks:
@@ -92,13 +92,13 @@ services:
     environment:
       - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
       - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.crt
+      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.cert.pem
       - LOG_LEVEL=debug
       - GRPC_VERBOSITY=DEBUG
       - GRPC_TRACE=channel,subchannel,call_stream
     command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && cd /usr/local/zeebe && node camunda-sdk.js"
     volumes:
-      - ./cert/root.crt:/usr/local/zeebe/root.crt
+      - ./cert/root.cert.pem:/usr/local/zeebe/root.cert.pem
       - ./camunda-sdk.js:/usr/local/zeebe/camunda-sdk.js
       - ./node_modules:/usr/local/zeebe/node_modules
     networks:

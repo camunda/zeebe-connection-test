@@ -35,9 +35,9 @@ Use this package to perform various tests and test preparations:
 You can bring your own root certificate + server certificate / private key pair and store them in `./cert` in the following format:
 
 ```sh
-# ./cert/root.crt   - root certificate
-# ./cert/server.crt - server certificate
-# ./cert/server.key - server private key
+# ./cert/root.cert.pem                - root certificate
+# ./cert/server.cert.pem              - server certificate
+# ./cert/server.key.pem               - server private key
 ```
 
 Alternatively use the [contained script](#generate-certificates) to generate them for a particular `COMMON_NAME`.
@@ -92,7 +92,7 @@ ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
 
 ```sh
-camunda-modeler --zeebe-ssl-certificate=cert/root.crt
+camunda-modeler --zeebe-ssl-certificate=cert/root.cert.pem
 ```
 
 
@@ -129,7 +129,7 @@ ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
 
 ```sh
-camunda-modeler --zeebe-ssl-certificate=cert/root.crt
+camunda-modeler --zeebe-ssl-certificate=cert/root.cert.pem
 ```
 
 
