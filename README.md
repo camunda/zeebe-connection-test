@@ -121,7 +121,7 @@ If successful you should see `zeebe-node` and `zbctl` print the current cluster 
 # (once) ensure the configured hostname resolves to 127.0.0.1
 ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sudo tee -a /etc/hosts
 
-# start zeebe with security enabled
+# start zeebe + proxy with security enabled
 ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.proxy up zeebe proxy
 
 # test with security enabled
@@ -132,6 +132,25 @@ To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) p
 
 ```sh
 camunda-modeler --zeebe-ssl-certificate=cert/ca-chain.cert.pem
+```
+
+> [!NOTE]
+> This setup assumes that intermediate and root certificates are installed
+> on the client's machine. An alternative setup is that the server provides
+> the [full certificate chain](https://www.rfc-editor.org/rfc/rfc5246#section-7.4.2), replicated below.
+
+```sh
+# start zeebe + proxy with security enabled
+PROXY_SERVER_CERTIFICATE=server-fullchain.cert.pem ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.proxy up zeebe proxy
+
+# test with security enabled
+CA_CERTIFICATE=root.cert.pem ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
+```
+
+To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) you now only have to pass the root certificate:
+
+```sh
+camunda-modeler --zeebe-ssl-certificate=cert/root.cert.pem
 ```
 
 
