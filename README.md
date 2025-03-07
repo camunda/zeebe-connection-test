@@ -36,7 +36,9 @@ You can bring your own root certificate + server certificate / private key pair 
 
 ```sh
 # ./cert/root.cert.pem                - root certificate
+# ./cert/ca-chain.cert.pem            - root + intermediate certificate chain
 # ./cert/server.cert.pem              - server certificate
+# ./cert/server-fullchain.cert.pem    - server certificate + full chain
 # ./cert/server.key.pem               - server private key
 ```
 
@@ -92,7 +94,7 @@ ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
 
 ```sh
-camunda-modeler --zeebe-ssl-certificate=cert/root.cert.pem
+camunda-modeler --zeebe-ssl-certificate=cert/ca-chain.cert.pem
 ```
 
 
@@ -129,7 +131,7 @@ ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
 
 ```sh
-camunda-modeler --zeebe-ssl-certificate=cert/root.cert.pem
+camunda-modeler --zeebe-ssl-certificate=cert/ca-chain.cert.pem
 ```
 
 

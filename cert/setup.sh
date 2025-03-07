@@ -5,69 +5,110 @@ if [[ "$COMMON_NAME" = "" ]]; then
   exit 1;
 fi
 
-# Create root CA & Private key
 
+### ROOT CA
+
+# private key
+openssl genrsa -out root.key.pem 4096
+
+# certificate
 openssl req -x509 \
-            -sha256 -days 356 \
-            -nodes \
-            -newkey rsa:4096 \
-            -subj "/CN=$COMMON_NAME/C=US/L=San Fransisco" \
-            -keyout root.key.pem -out root.cert.pem
+            -new -days 365 -sha256 \
+            -subj "/C=US/ST=California/L=Buxdehude/O=Camunda Example Corp/OU=Modeling/CN=Modeler Test Root CA" \
+            -key root.key.pem \
+            -out root.cert.pem
 
-# Generate Private key
 
+### INTERMEDIATE CA
+
+# private key
+openssl genrsa -out intermediate.key.pem 4096
+
+cat > "intermediate.csr.conf" <<EOF
+[ ca ]
+default_ca = CA_default
+
+[ CA_default ]
+crl_extensions = crl_ext
+
+[ req ]
+default_bits        = 2048
+string_mask         = utf8only
+default_md          = sha256
+x509_extensions     = v3_intermediate_ca
+
+[ v3_intermediate_ca ]
+subjectKeyIdentifier = hash
+authorityKeyIdentifier = keyid:always,issuer
+basicConstraints = critical, CA:true, pathlen:0
+keyUsage = critical, digitalSignature, cRLSign, keyCertSign
+
+[ crl_ext ]
+authorityKeyIdentifier=keyid:always
+EOF
+
+# signing request
+openssl req -new -sha256 \
+            -subj "/C=US/ST=California/L=Buxdehude/O=Camunda Example Corp/OU=Modeling/CN=Modeler Test Intermediate CA" \
+            -key intermediate.key.pem \
+            -out intermediate.csr.pem
+
+# certificate
+openssl x509 -req -sha256 -days 365 \
+             -CAcreateserial \
+             -extfile intermediate.csr.conf \
+             -extensions v3_intermediate_ca \
+             -in intermediate.csr.pem \
+             -CA root.cert.pem -CAkey root.key.pem \
+             -out intermediate.cert.pem
+
+openssl verify -CAfile root.cert.pem intermediate.cert.pem
+
+cat intermediate.cert.pem root.cert.pem > ca-chain.cert.pem
+
+
+### SERVER
+
+# private key
 openssl genrsa -out server.key.pem 4096
-openssl pkcs8 -topk8 -inform pem -in server.key.pem -outform pem -nocrypt -out server.cert.pem
-
-# Create csf conf
 
 cat > server.csr.conf <<EOF
-[ req ]
-default_bits = 4096
-prompt = no
-default_md = sha256
-req_extensions = req_ext
-distinguished_name = dn
-
-[ dn ]
-C = US
-ST = California
-L = San Fransisco
-O = TEST ORG
-OU = TEST ORG Dev
-CN = localhost
-
-[ req_ext ]
+[ server_cert ]
+basicConstraints = CA:FALSE
+nsCertType = server
+keyUsage = critical, digitalSignature, keyEncipherment
+extendedKeyUsage = serverAuth
+authorityKeyIdentifier = keyid,issuer
 subjectAltName = @alt_names
+subjectKeyIdentifier = hash
 
 [ alt_names ]
 DNS.1 = *.$COMMON_NAME
 
 EOF
 
-# create CSR request using private key
+# signing request
+openssl req -new -sha256 \
+            -subj "/C=US/ST=California/L=Buxdehude/O=Camunda Example Corp/OU=Modeling/CN=$COMMON_NAME" \
+            -key server.key.pem \
+            -out server.csr.pem
 
-openssl req -new -key server.cert.pem -out server.csr -config server.csr.conf
+# certificate
+openssl x509 -req -sha256 -days 60 \
+             -CAcreateserial \
+             -extfile server.csr.conf \
+             -extensions server_cert \
+             -in server.csr.pem \
+             -CA intermediate.cert.pem -CAkey intermediate.key.pem \
+             -out server.cert.pem
 
-# Create a external config file for the certificate
+openssl verify -CAfile ca-chain.cert.pem server.cert.pem
 
-cat > server.cert.conf <<EOF
+cat server.cert.pem intermediate.cert.pem > server-fullchain.cert.pem
 
-authorityKeyIdentifier=keyid,issuer
-basicConstraints=CA:FALSE
-keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
-subjectAltName = @alt_names
+echo "Generated certificate chain: [Root CA] -> [Intermediate CA] -> [Server certificate]"
 
-[alt_names]
-DNS.1 = *.$COMMON_NAME
-
-EOF
-
-# Create SSl with self signed CA
-
-openssl x509 -req \
-    -in server.csr \
-    -CA root.cert.pem -CAkey root.key.pem \
-    -CAcreateserial -out server.crt \
-    -days 365 \
-    -sha256 -extfile server.cert.conf
+# ensure certificates and private keys are readable,
+# so docker does not complain. You'd NEVER do this in a
+# production setup.
+chmod o+r *.pem
