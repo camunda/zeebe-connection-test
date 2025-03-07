@@ -36,10 +36,12 @@ services:
     environment:
       - ZEEBE_PORT=${ZEEBE_PORT:-26500}
       - ZEEBE_HOSTNAME=${ZEEBE_HOSTNAME:-sub.example.com}
+      - PROXY_SERVER_CERTIFICATE=${PROXY_SERVER_CERTIFICATE:-server.cert.pem}
       - PROXY_PORT=${PROXY_PORT:-443}
     volumes:
       - ./nginx/templates:/etc/nginx/templates
       - ./cert/server.cert.pem:/usr/local/proxy/server.cert.pem
+      - ./cert/server-fullchain.cert.pem:/usr/local/proxy/server-fullchain.cert.pem
       - ./cert/server.key.pem:/usr/local/proxy/server.key.pem
     ports:
       - "${PROXY_PORT:-443}:${PROXY_PORT:-443}"
