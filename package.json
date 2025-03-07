@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run test:insecure && npm run test:secure",
     "test:insecure": "ZEEBE_INSECURE_CONNECTION=true npm run test:clients",
-    "test:secure": "ZEEBE_INSECURE_CONNECTION=false ZEEBE_CA_CERTIFICATE_PATH=./cert/root.cert.pem npm run test:clients",
+    "test:secure": "ZEEBE_INSECURE_CONNECTION=false ZEEBE_CA_CERTIFICATE_PATH=./cert/ca-chain.cert.pem npm run test:clients",
     "test:clients": "npm run test:zeebe-node && npm run test:zbctl && npm run test:camunda-sdk",
     "test:zbctl": "zbctl status -o json",
     "test:zeebe-node": "LOG_LEVEL=debug GRPC_VERBOSITY=DEBUG GRPC_TRACE=channel,subchannel,call_stream node index.js",
