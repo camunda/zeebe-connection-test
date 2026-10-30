@@ -15,6 +15,6 @@
   "author": "Maciej Barelkowski <maciej.barelkowski@camunda.com>",
   "license": "MIT",
   "dependencies": {
-    "@camunda8/sdk": "^8.5.3"
+    "@camunda8/sdk": "^8.8.18"
   }
 }
