@@ -23,8 +23,5 @@
   },
   "devDependencies": {
     "nodemon": "^3.0.1"
-  },
-  "optionalDependencies": {
-    "vscode-windows-ca-certs": "^0.3.0"
   }
 }
