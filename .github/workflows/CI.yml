@@ -15,7 +15,7 @@ jobs:
       matrix:
         zeebeVersion: [8.1.0, 8.2.2]
         nodeVersion:
-        - 20
+        - 24
     runs-on: ubuntu-latest
     env:
       ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
