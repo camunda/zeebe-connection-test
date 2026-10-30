@@ -78,7 +78,7 @@ In this test we securely connect our client to a Zeebe instance via TLS. We vali
 
 #### Script
 
-If successful you should see `zeebe-node`, `zbctl`, and `@camunda8/sdk` print the current cluster topology.
+If successful you should see `zeebe-node` and `@camunda8/sdk` print the current cluster topology.
 
 ```sh
 # (once) ensure the configured hostname resolves to 127.0.0.1
@@ -115,7 +115,7 @@ In this test we securely connect our client to a [reverse proxy](https://www.clo
 
 #### Script
 
-If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
+If successful you should see `zeebe-node` and `@camunda8/sdk` print the current cluster topology.
 
 ```sh
 # (once) ensure the configured hostname resolves to 127.0.0.1
@@ -192,7 +192,7 @@ ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
 
 #### Script
 
-If successful you should see `zeebe-node`, `zbctl`, and `@camunda8/sdk` print the current cluster topology.
+If successful you should see `zeebe-node` and `@camunda8/sdk` print the current cluster topology.
 
 ```sh
 # test with security enabled
@@ -208,7 +208,7 @@ ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.insecure up
 Assert the correct output, i.e. by verifying correct cluster topology logs:
 
 ```sh
-# the gateway version is produced twice as we test against `zebee-node` and `zbctl`
+# the gateway version is produced twice as we test against `zeebe-node` and `@camunda8/sdk`
 [ "$(npm run test:secure | grep '"gatewayVersion": "8.1.0"' -c)" = 2 ] || echo "error: missing output <gatewayVersion>"
 ```
 
