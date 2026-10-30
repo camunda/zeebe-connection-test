@@ -10,7 +10,7 @@ To test secure communication [bring your own certificates](#configure-certificat
 
 * Docker
 * openssl
-* NodeJS
+* NodeJS 24
 * npm
 
 ## Installation
