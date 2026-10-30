@@ -45,22 +45,6 @@ services:
       - "${PROXY_PORT:-443}:${PROXY_PORT:-443}"
     networks:
       - test
-  zbctl-test:
-    links:
-      - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: "node:${NODE_VERSION:-24}-alpine"
-    depends_on:
-      zeebe:
-        condition: service_healthy
-    environment:
-      - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
-      - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.cert.pem
-    command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && npx zbctl status -o json"
-    volumes:
-      - ./cert/root.cert.pem:/usr/local/zeebe/root.cert.pem
-    networks:
-      - test
   zebee-node-test:
     links:
       - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
