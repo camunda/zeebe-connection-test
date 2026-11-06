@@ -9,6 +9,10 @@ services:
       - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.cert.pem
       - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.key.pem
       - ZEEBE_BROKER_GATEWAY_NETWORK_PORT=${ZEEBE_PORT:-26500}
+      - SERVER_PORT=${ZEEBE_REST_PORT:-8080}
+      - SERVER_SSL_ENABLED=${ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED:-true}
+      - SERVER_SSL_CERTIFICATE=/usr/local/zeebe/server.cert.pem
+      - SERVER_SSL_CERTIFICATE_PRIVATE_KEY=/usr/local/zeebe/server.key.pem
       - SPRING_PROFILES_ACTIVE=broker
       - CAMUNDA_DATA_SECONDARYSTORAGE_TYPE=none
       - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=true
@@ -24,6 +28,7 @@ services:
       start_period: 60s
     ports:
       - "${ZEEBE_PORT:-26500}:${ZEEBE_PORT:-26500}"
+      - "${ZEEBE_REST_PORT:-8080}:${ZEEBE_REST_PORT:-8080}"
     networks:
       - test
   proxy:
@@ -36,6 +41,7 @@ services:
         condition: service_started
     environment:
       - ZEEBE_PORT=${ZEEBE_PORT:-26500}
+      - ZEEBE_REST_PORT=${ZEEBE_REST_PORT:-8080}
       - ZEEBE_HOSTNAME=${ZEEBE_HOSTNAME:-sub.example.com}
       - PROXY_SERVER_CERTIFICATE=${PROXY_SERVER_CERTIFICATE:-server.cert.pem}
       - PROXY_PORT=${PROXY_PORT:-443}
