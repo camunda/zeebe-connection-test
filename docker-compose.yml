@@ -1,7 +1,7 @@
 services:
   zeebe:
     container_name: zeebe_broker
-    image: camunda/zeebe:${ZEEBE_VERSION:-8.5.1}
+    image: camunda/camunda:${ZEEBE_VERSION:-8.8.46}
     environment:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
@@ -9,8 +9,11 @@ services:
       - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.cert.pem
       - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.key.pem
       - ZEEBE_BROKER_GATEWAY_NETWORK_PORT=${ZEEBE_PORT:-26500}
+      - SPRING_PROFILES_ACTIVE=broker
+      - CAMUNDA_DATA_SECONDARYSTORAGE_TYPE=none
+      - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=true
     volumes:
-      - ./application.yaml:/usr/local/zeebe/config/application.yaml
+      - ./application.yaml:/usr/local/camunda/config/application.yaml
       - ./cert/server.cert.pem:/usr/local/zeebe/server.cert.pem
       - ./cert/server.key.pem:/usr/local/zeebe/server.key.pem
     healthcheck:

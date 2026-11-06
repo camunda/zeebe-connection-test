@@ -13,7 +13,7 @@ jobs:
   build:
     strategy:
       matrix:
-        zeebeVersion: [8.1.0, 8.2.2]
+        zeebeVersion: [8.8.46, 8.9.28, 8.10.9]
         nodeVersion:
         - 24
     runs-on: ubuntu-latest
