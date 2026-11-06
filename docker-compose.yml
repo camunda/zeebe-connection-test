@@ -1,7 +1,7 @@
 services:
   zeebe:
     container_name: zeebe_broker
-    image: camunda/zeebe:${ZEEBE_VERSION:-8.5.1}
+    image: camunda/camunda:${ZEEBE_VERSION:-8.8.46}
     environment:
       - ZEEBE_LOG_LEVEL=debug
       - ZEEBE_BROKER_NETWORK_HOST=0.0.0.0
@@ -9,8 +9,15 @@ services:
       - ZEEBE_BROKER_GATEWAY_SECURITY_CERTIFICATECHAINPATH=/usr/local/zeebe/server.cert.pem
       - ZEEBE_BROKER_GATEWAY_SECURITY_PRIVATEKEYPATH=/usr/local/zeebe/server.key.pem
       - ZEEBE_BROKER_GATEWAY_NETWORK_PORT=${ZEEBE_PORT:-26500}
+      - SERVER_PORT=${ZEEBE_REST_PORT:-8080}
+      - SERVER_SSL_ENABLED=${ZEEBE_BROKER_GATEWAY_SECURITY_ENABLED:-true}
+      - SERVER_SSL_CERTIFICATE=/usr/local/zeebe/server.cert.pem
+      - SERVER_SSL_CERTIFICATE_PRIVATE_KEY=/usr/local/zeebe/server.key.pem
+      - SPRING_PROFILES_ACTIVE=broker
+      - CAMUNDA_DATA_SECONDARYSTORAGE_TYPE=none
+      - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=true
     volumes:
-      - ./application.yaml:/usr/local/zeebe/config/application.yaml
+      - ./application.yaml:/usr/local/camunda/config/application.yaml
       - ./cert/server.cert.pem:/usr/local/zeebe/server.cert.pem
       - ./cert/server.key.pem:/usr/local/zeebe/server.key.pem
     healthcheck:
@@ -21,6 +28,7 @@ services:
       start_period: 60s
     ports:
       - "${ZEEBE_PORT:-26500}:${ZEEBE_PORT:-26500}"
+      - "${ZEEBE_REST_PORT:-8080}:${ZEEBE_REST_PORT:-8080}"
     networks:
       - test
   proxy:
@@ -33,6 +41,7 @@ services:
         condition: service_started
     environment:
       - ZEEBE_PORT=${ZEEBE_PORT:-26500}
+      - ZEEBE_REST_PORT=${ZEEBE_REST_PORT:-8080}
       - ZEEBE_HOSTNAME=${ZEEBE_HOSTNAME:-sub.example.com}
       - PROXY_SERVER_CERTIFICATE=${PROXY_SERVER_CERTIFICATE:-server.cert.pem}
       - PROXY_PORT=${PROXY_PORT:-443}
@@ -45,47 +54,10 @@ services:
       - "${PROXY_PORT:-443}:${PROXY_PORT:-443}"
     networks:
       - test
-  zbctl-test:
-    links:
-      - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: "node:${NODE_VERSION:-20}-alpine"
-    depends_on:
-      zeebe:
-        condition: service_healthy
-    environment:
-      - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
-      - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.cert.pem
-    command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && npx zbctl status -o json"
-    volumes:
-      - ./cert/root.cert.pem:/usr/local/zeebe/root.cert.pem
-    networks:
-      - test
-  zebee-node-test:
-    links:
-      - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: "node:${NODE_VERSION:-20}-alpine"
-    depends_on:
-      zeebe:
-        condition: service_healthy
-    environment:
-      - ZEEBE_ADDRESS=${ZEEBE_HOSTNAME:-sub.example.com}:${ZEEBE_PORT:-26500}
-      - ZEEBE_INSECURE_CONNECTION=${ZEEBE_INSECURE_CONNECTION:-false}
-      - ZEEBE_CA_CERTIFICATE_PATH=/usr/local/zeebe/root.cert.pem
-      - LOG_LEVEL=debug
-      - GRPC_VERBOSITY=DEBUG
-      - GRPC_TRACE=channel,subchannel,call_stream
-    command: sh -c "ping ${ZEEBE_HOSTNAME:-sub.example.com} -c 1 && cd /usr/local/zeebe && node index.js"
-    volumes:
-      - ./cert/root.cert.pem:/usr/local/zeebe/root.cert.pem
-      - ./index.js:/usr/local/zeebe/index.js
-      - ./node_modules:/usr/local/zeebe/node_modules
-    networks:
-      - test
   camunda-sdk-test:
     links:
       - "zeebe:${ZEEBE_HOSTNAME:-sub.example.com}"
-    image: "node:${NODE_VERSION:-20}-alpine"
+    image: "node:${NODE_VERSION:-24}-alpine"
     depends_on:
       zeebe:
         condition: service_healthy

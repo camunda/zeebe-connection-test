@@ -3,7 +3,7 @@ on:
   push:
   pull_request:
   schedule:
-    - cron: '0 0 * * *' # every day at midnight
+    - cron: '0 0 15 * *' # on the 15th of every month at midnight
 
 env:
   COMMON_NAME: example.com
@@ -13,14 +13,14 @@ jobs:
   build:
     strategy:
       matrix:
-        zeebeVersion: [8.1.0, 8.2.2]
+        zeebeVersion: [8.8.46, 8.9.28, 8.10.9]
         nodeVersion:
-        - 20
+        - 24
     runs-on: ubuntu-latest
     env:
       ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
       NODE_VERSION: ${{ matrix.nodeVersion }}
-      TEST_COUNT: 3
+      TEST_COUNT: 2
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -40,14 +40,15 @@ jobs:
     - name: Create Zebee container (secure)
       env:
         ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
-      run: docker-compose up --no-start zeebe
+      run: docker compose up --no-start zeebe
     - name: Start Zebee (secure)
-      run: docker-compose up --detach zeebe
+      run: docker compose up --detach zeebe
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (secure)
       env:
         ZEEBE_ADDRESS: test.example.com:26500
+        CAMUNDA_BASE_URL: https://test.example.com:8080
       run: |
         npm run test:secure | tee output.txt
         results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
@@ -56,19 +57,20 @@ jobs:
           exit 1
         fi
     - name: Stop Zeebe (secure)
-      run: docker-compose down
+      run: docker compose down
 
     - name: Create Zebee container (insecure) + reverse proxy
       env:
         ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
-      run: docker-compose --env-file ./.env.proxy up  --no-start zeebe proxy
+      run: docker compose --env-file ./.env.proxy up --no-start zeebe proxy
     - name: Start Zebee (insecure) + reverse proxy
-      run: docker-compose --env-file ./.env.proxy up --detach zeebe proxy
+      run: docker compose --env-file ./.env.proxy up --detach zeebe proxy
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (secure)
       env:
         ZEEBE_ADDRESS: test.example.com:443
+        CAMUNDA_BASE_URL: https://test.example.com:443
       run: |
         npm run test:secure | tee output.txt
         results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
@@ -77,17 +79,18 @@ jobs:
           exit 1
         fi
     - name: Stop Zebee (insecure) + reverse proxy
-      run: docker-compose down
+      run: docker compose down
 
     - name: Create Zeebe container (insecure)
-      run: docker-compose --env-file ./.env.insecure up --no-start zeebe
+      run: docker compose --env-file ./.env.insecure up --no-start zeebe
     - name: Start Zebee (insecure)
-      run: docker-compose --env-file ./.env.insecure up --detach zeebe
+      run: docker compose --env-file ./.env.insecure up --detach zeebe
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (insecure)
       env:
         ZEEBE_ADDRESS: test.example.com:26500
+        CAMUNDA_BASE_URL: http://test.example.com:8080
       run: |
         npm run test:insecure | tee output.txt
         results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
@@ -96,4 +99,102 @@ jobs:
           exit 1
         fi
     - name: Stop Zeebe (insecure)
-      run: docker-compose down
+      run: docker compose down
+
+  # Docker cannot run Linux containers on macOS and Windows runners,
+  # so run the broker natively there (secure + insecure, no reverse proxy).
+  native:
+    name: build (${{ matrix.zeebeVersion }}, ${{ matrix.nodeVersion }}, ${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+        zeebeVersion: [8.8.46, 8.9.28, 8.10.9]
+        nodeVersion:
+        - 24
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    env:
+      ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
+      TEST_COUNT: 2
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.nodeVersion }}
+        cache: 'npm'
+    - name: Use Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: temurin
+        java-version: 21
+    - name: Use bash for npm scripts
+      if: runner.os == 'Windows'
+      run: npm config set script-shell "C:\Program Files\Git\bin\bash.exe"
+    - name: Use OpenSSL 3
+      if: runner.os == 'macOS'
+      run: echo "$(brew --prefix openssl@3)/bin" >> "$GITHUB_PATH"
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Setup hosts
+      run: |
+        if [[ "$RUNNER_OS" == "Windows" ]]; then
+          echo "127.0.0.1    $ZEEBE_HOSTNAME" >> /c/Windows/System32/drivers/etc/hosts
+        else
+          echo "127.0.0.1    $ZEEBE_HOSTNAME" | sudo tee -a /etc/hosts
+        fi
+    - name: Generate certificates
+      env:
+        MSYS_NO_PATHCONV: 1 # keep openssl -subj from being converted to a path
+      run: npm run generate-certs
+
+    - name: Download Camunda
+      run: |
+        url="https://repo1.maven.org/maven2/io/camunda/camunda-zeebe/${ZEEBE_VERSION}/camunda-zeebe-${ZEEBE_VERSION}.tar.gz"
+        curl --fail --silent --show-error --location --output camunda.tar.gz "$url"
+        curl --fail --silent --show-error --location --output camunda.tar.gz.sha1 "$url.sha1"
+        echo "$(cat camunda.tar.gz.sha1)  camunda.tar.gz" | (sha1sum -c - || shasum -a 1 -c -)
+        tar -xzf camunda.tar.gz
+
+    - name: Start Zeebe (secure)
+      run: node helpers/native-broker.js start "camunda-zeebe-${ZEEBE_VERSION}"
+    - name: Test (secure)
+      env:
+        ZEEBE_ADDRESS: test.example.com:26500
+        CAMUNDA_BASE_URL: https://test.example.com:8080
+      run: |
+        npm run test:secure | tee output.txt
+        results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
+        if [[ "$results" != "$TEST_COUNT" ]]; then
+          echo "missing <gatewayVersion>"
+          exit 1
+        fi
+    - name: Stop Zeebe (secure)
+      if: always()
+      run: node helpers/native-broker.js stop "camunda-zeebe-${ZEEBE_VERSION}"
+
+    - name: Start Zeebe (insecure)
+      run: node helpers/native-broker.js start "camunda-zeebe-${ZEEBE_VERSION}" --insecure
+    - name: Test (insecure)
+      env:
+        ZEEBE_ADDRESS: test.example.com:26500
+        CAMUNDA_BASE_URL: http://test.example.com:8080
+      run: |
+        npm run test:insecure | tee output.txt
+        results=$(grep -E "\"gatewayVersion\":\s*\"${ZEEBE_VERSION}\"" -c output.txt)
+        if [[ "$results" != "$TEST_COUNT" ]]; then
+          echo "missing <gatewayVersion>"
+          exit 1
+        fi
+    - name: Stop Zeebe (insecure)
+      if: always()
+      run: node helpers/native-broker.js stop "camunda-zeebe-${ZEEBE_VERSION}"
+
+    - name: Show broker log
+      if: failure()
+      run: tail -n 200 "camunda-zeebe-${ZEEBE_VERSION}/broker.log"

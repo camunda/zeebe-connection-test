@@ -10,7 +10,7 @@ To test secure communication [bring your own certificates](#configure-certificat
 
 * Docker
 * openssl
-* NodeJS
+* NodeJS 24
 * npm
 
 ## Installation
@@ -28,6 +28,8 @@ Use this package to perform various tests and test preparations:
 * [Test: Secure connection to Zeebe](#test-secure-connection-to-zeebe)
 * [Test: Secure connection to Zeebe via reverse proxy](#test-secure-connection-to-zeebe-via-reverse-proxy)
 * [Test: Insecure connection to Zeebe](#test-insecure-connection-to-zeebe)
+
+The tests connect with `@camunda8/sdk` via gRPC (`ZEEBE_ADDRESS`) and with [`c8ctl`](https://www.npmjs.com/package/@camunda8/cli) via the REST API (`CAMUNDA_BASE_URL`).
 
 
 ## Configure certificates
@@ -74,11 +76,13 @@ In this test we securely connect our client to a Zeebe instance via TLS. We vali
 | :--- | :--- |
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. A valid hostname must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
 | `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_REST_PORT` | Port under which the Zeebe REST API is available, default is `8080` |
 | `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT` |
+| `CAMUNDA_BASE_URL` | REST API URL to connect to, typically `https://ZEEBE_HOSTNAME:ZEEBE_REST_PORT` |
 
 #### Script
 
-If successful you should see `zeebe-node`, `zbctl`, and `@camunda8/sdk` print the current cluster topology.
+If successful you should see `@camunda8/sdk` and `c8ctl` print the current cluster topology.
 
 ```sh
 # (once) ensure the configured hostname resolves to 127.0.0.1
@@ -88,7 +92,7 @@ ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sud
 ZEEBE_HOSTNAME=sub.example.com docker compose up zeebe
 
 # test with security enabled
-ZEEBE_ADDRESS=sub.example.com:26500 npm run test:secure
+ZEEBE_ADDRESS=sub.example.com:26500 CAMUNDA_BASE_URL=https://sub.example.com:8080 npm run test:secure
 ```
 
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
@@ -111,11 +115,13 @@ In this test we securely connect our client to a [reverse proxy](https://www.clo
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance and reverse proxy are available in the network. A valid hostname must match the server certificates `COMMON_NAME` or configured wildcard pattern (i.e. `*.COMMON_NAME`) one level deep. |
 | `PROXY_PORT` | Port under which the reverse proxy is available, default is `443` |
 | `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_REST_PORT` | Port under which the Zeebe REST API is available, default is `8080` |
 | `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:PROXY_PORT` |
+| `CAMUNDA_BASE_URL` | REST API URL to connect to, typically `https://ZEEBE_HOSTNAME:PROXY_PORT` |
 
 #### Script
 
-If successful you should see `zeebe-node` and `zbctl` print the current cluster topology.
+If successful you should see `@camunda8/sdk` and `c8ctl` print the current cluster topology.
 
 ```sh
 # (once) ensure the configured hostname resolves to 127.0.0.1
@@ -125,7 +131,7 @@ ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sud
 ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.proxy up zeebe proxy
 
 # test with security enabled
-ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
+ZEEBE_ADDRESS=sub.example.com:443 CAMUNDA_BASE_URL=https://sub.example.com:443 npm run test:secure
 ```
 
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) pass the custom SSL root certificate use the `--zeebe-ssl-certificate` flag:
@@ -144,7 +150,7 @@ camunda-modeler --zeebe-ssl-certificate=cert/ca-chain.cert.pem
 PROXY_SERVER_CERTIFICATE=server-fullchain.cert.pem ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.proxy up zeebe proxy
 
 # test with security enabled
-CA_CERTIFICATE=root.cert.pem ZEEBE_ADDRESS=sub.example.com:443 npm run test:secure
+CA_CERTIFICATE=root.cert.pem ZEEBE_ADDRESS=sub.example.com:443 CAMUNDA_BASE_URL=https://sub.example.com:443 npm run test:secure
 ```
 
 To test with the [Camunda Modeler](https://github.com/camunda/camunda-modeler) you now only have to pass the root certificate:
@@ -164,7 +170,9 @@ In this test we connect to Zeebe in an insecure (plain text) fashion.
 | :--- | :--- |
 | `ZEEBE_HOSTNAME` | Name under which the Zeebe instance is available in the network. |
 | `ZEEBE_PORT` | Port under which the Zeebe gateway is available, default is `26500` |
+| `ZEEBE_REST_PORT` | Port under which the Zeebe REST API is available, default is `8080` |
 | `ZEEBE_ADDRESS` | Address to connect to, typically `ZEEBE_HOSTNAME:ZEEBE_PORT` |
+| `CAMUNDA_BASE_URL` | REST API URL to connect to, typically `http://ZEEBE_HOSTNAME:ZEEBE_REST_PORT` |
 
 #### Script
 
@@ -176,8 +184,27 @@ ZEEBE_HOSTNAME=sub.example.com sh -c 'echo "127.0.0.1    $ZEEBE_HOSTNAME"' | sud
 ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.insecure up zeebe
 
 # test with security disabled
-ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
+ZEEBE_ADDRESS=sub.example.com:26500 CAMUNDA_BASE_URL=http://sub.example.com:8080 npm run test:insecure
 ```
+
+
+## Run Zeebe without Docker
+
+Docker cannot run Linux containers on macOS and Windows CI runners, so CI starts the broker as a native process there. You can do the same locally, given Java 21+ and [generated certificates](#generate-certificates):
+
+```sh
+# download and extract the distribution
+curl -LO https://repo1.maven.org/maven2/io/camunda/camunda-zeebe/8.10.9/camunda-zeebe-8.10.9.tar.gz
+tar -xzf camunda-zeebe-8.10.9.tar.gz
+
+# start with security enabled, or pass --insecure to disable it
+node helpers/native-broker.js start camunda-zeebe-8.10.9
+
+# stop again
+node helpers/native-broker.js stop camunda-zeebe-8.10.9
+```
+
+Then run the [secure](#test-secure-connection-to-zeebe) or [insecure](#test-insecure-connection-to-zeebe) test as usual. The broker honors `ZEEBE_PORT`, `ZEEBE_REST_PORT` and `ZEEBE_MANAGEMENT_PORT` (health, default `9600`).
 
 
 ## Test in Docker
@@ -192,7 +219,7 @@ ZEEBE_ADDRESS=sub.example.com:26500 npm run test:insecure
 
 #### Script
 
-If successful you should see `zeebe-node`, `zbctl`, and `@camunda8/sdk` print the current cluster topology.
+If successful you should see `@camunda8/sdk` print the current cluster topology.
 
 ```sh
 # test with security enabled
@@ -208,8 +235,8 @@ ZEEBE_HOSTNAME=sub.example.com docker compose --env-file .env.insecure up
 Assert the correct output, i.e. by verifying correct cluster topology logs:
 
 ```sh
-# the gateway version is produced twice as we test against `zebee-node` and `zbctl`
-[ "$(npm run test:secure | grep '"gatewayVersion": "8.1.0"' -c)" = 2 ] || echo "error: missing output <gatewayVersion>"
+# the gateway version is produced twice as we test against `@camunda8/sdk` and `c8ctl`
+[ "$(npm run test:secure | grep '"gatewayVersion": "8.8.46"' -c)" = 2 ] || echo "error: missing output <gatewayVersion>"
 ```
 
 
