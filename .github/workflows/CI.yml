@@ -40,9 +40,9 @@ jobs:
     - name: Create Zebee container (secure)
       env:
         ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
-      run: docker-compose up --no-start zeebe
+      run: docker compose up --no-start zeebe
     - name: Start Zebee (secure)
-      run: docker-compose up --detach zeebe
+      run: docker compose up --detach zeebe
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (secure)
@@ -57,14 +57,14 @@ jobs:
           exit 1
         fi
     - name: Stop Zeebe (secure)
-      run: docker-compose down
+      run: docker compose down
 
     - name: Create Zebee container (insecure) + reverse proxy
       env:
         ZEEBE_VERSION: ${{ matrix.zeebeVersion }}
-      run: docker-compose --env-file ./.env.proxy up  --no-start zeebe proxy
+      run: docker compose --env-file ./.env.proxy up --no-start zeebe proxy
     - name: Start Zebee (insecure) + reverse proxy
-      run: docker-compose --env-file ./.env.proxy up --detach zeebe proxy
+      run: docker compose --env-file ./.env.proxy up --detach zeebe proxy
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (secure)
@@ -79,12 +79,12 @@ jobs:
           exit 1
         fi
     - name: Stop Zebee (insecure) + reverse proxy
-      run: docker-compose down
+      run: docker compose down
 
     - name: Create Zeebe container (insecure)
-      run: docker-compose --env-file ./.env.insecure up --no-start zeebe
+      run: docker compose --env-file ./.env.insecure up --no-start zeebe
     - name: Start Zebee (insecure)
-      run: docker-compose --env-file ./.env.insecure up --detach zeebe
+      run: docker compose --env-file ./.env.insecure up --detach zeebe
     - name: Sleep for 10 seconds
       run: sleep 10s
     - name: Test (insecure)
@@ -99,4 +99,4 @@ jobs:
           exit 1
         fi
     - name: Stop Zeebe (insecure)
-      run: docker-compose down
+      run: docker compose down
