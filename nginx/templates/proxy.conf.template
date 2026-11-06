@@ -8,4 +8,8 @@ server {
   location / {
     grpc_pass grpc://${ZEEBE_HOSTNAME}:${ZEEBE_PORT};
   }
+
+  location /v2/ {
+    proxy_pass http://${ZEEBE_HOSTNAME}:${ZEEBE_REST_PORT};
+  }
 }
