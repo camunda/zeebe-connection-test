@@ -16,8 +16,5 @@
   "license": "MIT",
   "dependencies": {
     "@camunda8/sdk": "^8.5.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1"
   }
 }
