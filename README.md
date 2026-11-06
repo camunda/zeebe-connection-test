@@ -209,7 +209,7 @@ Assert the correct output, i.e. by verifying correct cluster topology logs:
 
 ```sh
 # the gateway version is produced once as we test against `@camunda8/sdk`
-[ "$(npm run test:secure | grep '"gatewayVersion": "8.1.0"' -c)" = 1 ] || echo "error: missing output <gatewayVersion>"
+[ "$(npm run test:secure | grep '"gatewayVersion": "8.8.46"' -c)" = 1 ] || echo "error: missing output <gatewayVersion>"
 ```
 
 
