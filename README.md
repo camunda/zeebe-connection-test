@@ -188,6 +188,25 @@ ZEEBE_ADDRESS=sub.example.com:26500 CAMUNDA_BASE_URL=http://sub.example.com:8080
 ```
 
 
+## Run Zeebe without Docker
+
+Docker cannot run Linux containers on macOS and Windows CI runners, so CI starts the broker as a native process there. You can do the same locally, given Java 21+ and [generated certificates](#generate-certificates):
+
+```sh
+# download and extract the distribution
+curl -LO https://repo1.maven.org/maven2/io/camunda/camunda-zeebe/8.10.9/camunda-zeebe-8.10.9.tar.gz
+tar -xzf camunda-zeebe-8.10.9.tar.gz
+
+# start with security enabled, or pass --insecure to disable it
+node helpers/native-broker.js start camunda-zeebe-8.10.9
+
+# stop again
+node helpers/native-broker.js stop camunda-zeebe-8.10.9
+```
+
+Then run the [secure](#test-secure-connection-to-zeebe) or [insecure](#test-insecure-connection-to-zeebe) test as usual. The broker honors `ZEEBE_PORT`, `ZEEBE_REST_PORT` and `ZEEBE_MANAGEMENT_PORT` (health, default `9600`).
+
+
 ## Test in Docker
 
 #### Inputs
